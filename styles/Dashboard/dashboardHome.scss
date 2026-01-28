@@ -1,0 +1,14 @@
+.dashboard-home {
+  display: flex;
+  justify-content: center;  // center horizontally
+  align-items: flex-start;  // align at top
+  padding-top: 50px;        // space from top
+  min-height: 100vh;        // full height
+  color: #fff;              // white text for dark background
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+}
+.dashboard-home .highlight {
+  color: #ffcc00;           // highlight color
+}
