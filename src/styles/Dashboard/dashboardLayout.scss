@@ -1,0 +1,39 @@
+.dashboard {
+  display: flex;
+  height: 100vh;              // lock viewport height
+  overflow: hidden;           // prevent body/page scroll
+
+  /* Full background image */
+  background-image: url('../../styles/Dashboard/background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  position: relative;
+
+  /* Remove overlay completely */
+  &::before {
+    content: none;
+  }
+
+  /* Keep children above background */
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .dashboard-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    /* Scroll happens ONLY here */
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    background: transparent;
+    padding: 20px;
+    border-radius: 0;
+  }
+}
