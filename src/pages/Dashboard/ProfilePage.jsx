@@ -2,9 +2,33 @@ import React, { useEffect, useState } from "react";
 import "../../styles/Dashboard/profile.scss";
 
 const ProfilePage = () => {
+  const [user, setUser] = useState(null);
   const [coords, setCoords] = useState({ lat: null, lng: null });
   const [locationName, setLocationName] = useState("Fetching location...");
 
+  // 🔥 FETCH USER DATA
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await fetch("http://localhost:5000/api/auth/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        setUser(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  // 📍 GEOLOCATION (your existing code)
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -12,28 +36,25 @@ const ProfilePage = () => {
           const { latitude, longitude } = position.coords;
           setCoords({ lat: latitude, lng: longitude });
 
-          // Optional: Convert coordinates to human-readable location
           fetch(
             `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
           )
             .then((res) => res.json())
             .then((data) => {
-              setLocationName(data.address.city || data.address.town || "Unknown");
+              setLocationName(
+                data.address.city || data.address.town || "Unknown"
+              );
             });
         },
-        (err) => {
-          console.error(err);
-          setLocationName("Location not available");
-        }
+        () => setLocationName("Location not available")
       );
-    } else {
-      setLocationName("Geolocation not supported");
     }
   }, []);
 
   return (
     <div className="profile-page">
       <div className="profile-grid">
+
         {/* LEFT PROFILE CARD */}
         <div className="profile-card">
           <div className="avatar-wrapper">
@@ -41,8 +62,9 @@ const ProfilePage = () => {
             <span className="online-dot"></span>
           </div>
 
-          <h2>User Name</h2>
-          <span className="username">@abc</span>
+          <h2>{user?.username || "Loading..."}</h2>
+          <span className="username">@{user?.username || "user"}</span>
+
 
           <div className="divider" />
 
@@ -62,19 +84,29 @@ const ProfilePage = () => {
         <div className="profile-right">
           <div className="settings-card">
             <h3>Profile Settings</h3>
+
             <div className="settings-row">
               <div>
                 <label>Email Address</label>
-                <input type="text" value="abc@gmail.com" disabled />
+                <input
+                  type="text"
+                  value={user?.email || ""}
+                  disabled
+                />
               </div>
 
               <div>
-                <label>Developer Level</label>
-                <input type="text" value="Senior Fullstack Engineer" disabled />
+                <label>Role</label>
+                <input
+                  type="text"
+                  value={user?.role || "user"}
+                  disabled
+                />
               </div>
             </div>
           </div>
 
+          {/* MAP */}
           <div className="map-card">
             <h3>Location (Google Maps)</h3>
 
@@ -93,6 +125,7 @@ const ProfilePage = () => {
             </span>
           </div>
         </div>
+
       </div>
     </div>
   );

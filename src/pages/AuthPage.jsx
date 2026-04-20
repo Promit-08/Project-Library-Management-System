@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+
 import Homepage from "../components/homepage";
 import LoginInterface from "../components/LoginInterface";
 import RegisterInterface from "../components/RegisterInterface";
@@ -7,30 +7,25 @@ import RegisterInterface from "../components/RegisterInterface";
 const AuthPage = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
-  const navigate = useNavigate();
 
-  // After login, set auth and go to dashboard
-  const handleLoginSuccess = () => {
-    localStorage.setItem("isLoggedIn", "true");
+  // ✅ LOGIN SUCCESS (ONLY STORE TOKEN)
+  const handleLoginSuccess = (data) => {
+    if (!data?.token) return console.error("No token received");
+
+    localStorage.setItem("token", data.token);
     setShowLogin(false);
-    navigate("/dashboard");
+
+    // ❌ NO navigation here
   };
 
-  const handleRegisterSuccess = () => {
-    localStorage.setItem("isLoggedIn", "true");
+  // ✅ REGISTER SUCCESS (ONLY STORE TOKEN)
+  const handleRegisterSuccess = (data) => {
+    if (!data?.token) return console.error("No token received");
+
+    localStorage.setItem("token", data.token);
     setShowRegister(false);
-    navigate("/dashboard");
-  };
 
-  // Switch modals
-  const switchToRegister = () => {
-    setShowLogin(false);
-    setShowRegister(true);
-  };
-
-  const switchToLogin = () => {
-    setShowRegister(false);
-    setShowLogin(true);
+    // ❌ NO navigation here
   };
 
   return (
@@ -43,16 +38,22 @@ const AuthPage = () => {
       {showLogin && (
         <LoginInterface
           onClose={() => setShowLogin(false)}
-          onSwitchToRegister={switchToRegister}
-          onLoginSuccess={handleLoginSuccess} // ✅ new prop
+          onLoginSuccess={handleLoginSuccess}
+          onSwitchToRegister={() => {
+            setShowLogin(false);
+            setShowRegister(true);
+          }}
         />
       )}
 
       {showRegister && (
         <RegisterInterface
           onClose={() => setShowRegister(false)}
-          onSwitchToLogin={switchToLogin}
-          onRegisterSuccess={handleRegisterSuccess} // ✅ new prop
+          onRegisterSuccess={handleRegisterSuccess}
+          onSwitchToLogin={() => {
+            setShowRegister(false);
+            setShowLogin(true);
+          }}
         />
       )}
     </>
