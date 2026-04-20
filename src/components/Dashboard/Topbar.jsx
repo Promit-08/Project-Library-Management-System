@@ -5,7 +5,7 @@ const Topbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState(null);
 
-  // ✅ Scroll effect
+  // scroll effect
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -15,7 +15,7 @@ const Topbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // ✅ Fetch user data
+  // fetch user
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -40,9 +40,19 @@ const Topbar = () => {
   return (
     <header className={`topbar ${scrolled ? "scrolled" : ""}`}>
       <div className="user-info">
-        {/* ✅ SHOW USERNAME */}
+
+        {/* ✅ USERNAME */}
         <span>{user?.username || "User"}</span>
-        <img src="https://i.pravatar.cc/40" alt="avatar" />
+
+        {/* ✅ AVATAR */}
+        <img
+          src={
+            user?.avatar
+              ? `http://localhost:5000${user.avatar}`
+              : "https://i.pravatar.cc/40"
+          }
+          alt="avatar"
+        />
       </div>
     </header>
   );

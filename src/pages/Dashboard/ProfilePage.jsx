@@ -1,6 +1,37 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/Dashboard/profile.scss";
 
+const handleAvatarChange = async (e) => {
+  const file = e.target.files[0];
+
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("avatar", file);
+
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(
+      "http://localhost:5000/api/auth/upload-avatar",
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }
+    );
+
+    const data = await res.json();
+
+    // update UI instantly
+    setUser((prev) => ({ ...prev, avatar: data.avatar }));
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
   const [coords, setCoords] = useState({ lat: null, lng: null });
@@ -58,7 +89,23 @@ const ProfilePage = () => {
         {/* LEFT PROFILE CARD */}
         <div className="profile-card">
           <div className="avatar-wrapper">
-            <img src="https://i.pravatar.cc/200" alt="User Avatar" />
+            <img
+              src={
+                user?.avatar
+                  ? `http://localhost:5000${user.avatar}`
+                  : "https://i.pravatar.cc/200"
+              }
+              alt="User Avatar"
+            />
+
+            <label className="upload-btn">
+              Change Profile Picture
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+              />
+            </label>
             <span className="online-dot"></span>
           </div>
 

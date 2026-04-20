@@ -2,6 +2,18 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../models/User.js"; 
+import multer from "multer";   
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+const upload = multer({ storage });
 
 const router = express.Router();
 
@@ -91,9 +103,35 @@ router.get("/profile", async (req, res) => {
     // get user from DB
     const user = await User.findById(decoded.id).select("-password");
 
-    res.json(user);
+    res.json({
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+      role: user.role,
+    });
   } catch (err) {
     res.status(401).json({ message: "Invalid token" });
+  }
+});
+
+// ✅ UPLOAD AVATAR
+router.put("/upload-avatar", upload.single("avatar"), async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.id);
+
+    user.avatar = `/uploads/${req.file.filename}`;
+    await user.save();
+
+    res.json({
+      message: "Avatar updated",
+      avatar: user.avatar,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Upload failed" });
   }
 });
 

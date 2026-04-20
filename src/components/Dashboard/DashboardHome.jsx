@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../../styles/Dashboard/dashboardHome.scss";
 import { FaStar, FaThumbsUp, FaThumbsDown } from "react-icons/fa";
 
@@ -75,8 +75,11 @@ const DashboardHome = () => {
     if (!commentInputs[id]) return;
 
     const newComment = {
-      name: "You",
-      avatar: "https://i.pravatar.cc/40",
+      name: user?.username || "User",
+      avatar:
+        user?.avatar
+          ? `http://localhost:5000${user.avatar}`
+          : "https://i.pravatar.cc/40",
       text: commentInputs[id],
     };
 
@@ -90,6 +93,29 @@ const DashboardHome = () => {
 
     setCommentInputs({ ...commentInputs, [id]: "" });
   };
+
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await fetch("http://localhost:5000/api/auth/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        setUser(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   return (
     <div className="dashboard-home">

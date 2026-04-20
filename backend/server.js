@@ -5,11 +5,13 @@ import connectDB from "./config/db.js";
 
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import path from "path";
 
 dotenv.config();
 connectDB();
 
 const app = express();
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use(cors({
   origin: "http://localhost:5173",
